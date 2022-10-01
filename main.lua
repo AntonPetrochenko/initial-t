@@ -1,9 +1,6 @@
 sounds = require 'sounds'
-sharedstates = require 'sharedstates'
-upgrade = require 'factories.upgrade_factory'
 
 worldMaker = require 'oo'
-spawner = require 'factories.spawner'
 
 world = worldMaker()
 
@@ -12,7 +9,6 @@ world = worldMaker()
 --world:add(upgrade(30,130,'minigun'))
 
 hitbox = require 'hitbox.hitbox'
-local punchable = require 'factories.punchable'
 local player_factory = require 'factories.player'
 local picture_factory = require 'factories.pictureobject'
 local gameTimer = 0
@@ -152,9 +148,6 @@ function love.update(dt)
         debug.debug()
     end
     gameTimer = gameTimer + dt
-    if gameTimer > 1 then
-        spawner.update(dt)
-    end
     for i,v in pairs(joysticks) do
         if v.available and v.instance:isGamepadDown("start") and gameTimer < 10 then
             v.available = false
@@ -207,7 +200,6 @@ function restartGame()
     end
     gameTimer = 0
     if needRestart then
-        spawner.restart()
         for i,v in pairs(joysticks) do
             v.available = true
             if v.player then

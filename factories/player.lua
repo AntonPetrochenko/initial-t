@@ -19,6 +19,10 @@ return function (joyrecord,x,y)
     player.pw = 24
     player.ph = 32
 
+
+    player.update_states = {}
+    player.draw_states = {}
+
     player.fire_timer = -0.1
 
     player.health = 3
@@ -77,13 +81,8 @@ return function (joyrecord,x,y)
 
     player.left = false
 
-    player.update_states = sharedstates.create_update_states()
-    player.draw_states = sharedstates.create_draw_states()
-
     local function walk_movement(self, dt)
         local ax1, ax2, ax3, ax4, ax5, ax6 = self.joy:getAxes()
-        ax1 = ax3
-        ax2 = ax4
         if math.abs(ax1) < 0.2 then ax1 = 0 end
         if math.abs(ax2) < 0.2 then ax2 = 0 end
 
@@ -108,8 +107,6 @@ return function (joyrecord,x,y)
     
     function player.draw_states.normal(self,dx,dy,dz,f,ox)
         local ax1, ax2, ax3, ax4 = self.joy:getAxes()
-        ax1 = ax3
-        ax2 = ax4
         if math.abs(ax1) > 0.2 or math.abs(ax2) > 0.2 then
             if self.statetimer % 0.4 < 0.2 then love.graphics.draw(self.frames.walk1,dx,dy - dz,nil,f,1,ox)
             else love.graphics.draw(self.frames.walk2,dx,dy - dz,nil,f,1,ox) end
