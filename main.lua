@@ -11,6 +11,7 @@ world = worldMaker()
 hitbox = require 'hitbox.hitbox'
 local player_factory = require 'factories.player'
 local picture_factory = require 'factories.pictureobject'
+local parallax_factory = require 'factories.parallax'
 local gameTimer = 0
 local needRestart = false
 
@@ -146,7 +147,9 @@ for i,v in ipairs(love.joystick.getJoysticks()) do
 end
 
 function love.load()
-    world:add(picture_factory(-320,0,"/assets/backdrop.png"))
+    world:add(picture_factory(0,0,"/assets/backdrop-src.png"))
+    world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 452, 90))
+    world:add(parallax_factory(452,103,"/assets/doroga-asset.png", 452, 90))
 end
 
 function love.update(dt)
