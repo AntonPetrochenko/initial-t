@@ -1,5 +1,7 @@
 local bullet = require 'factories.bullet'
 
+local cpml = require('cpml')
+
 return function (joyrecord,x,y)
     local player = {}
 
@@ -11,6 +13,8 @@ return function (joyrecord,x,y)
     player.x = x
     player.y = y
     player.z = 0
+
+    player.motion_vector = cpml.vec2.new(0,0)
     
     player.shoot_x = 24/2
     player.shoot_y = 32/2
@@ -18,6 +22,8 @@ return function (joyrecord,x,y)
     player.collides = true
     player.pw = 24
     player.ph = 32
+
+    player.speed_rampup = 0
 
 
     player.update_states = {}
@@ -29,6 +35,8 @@ return function (joyrecord,x,y)
     player.stamina = 10
     player.inactivity = 0
     player.score = 0
+
+    player.animation_timer = 0
 
     player.weapon = {
         impulse = 7,
@@ -86,11 +94,23 @@ return function (joyrecord,x,y)
         if math.abs(ax1) < 0.2 then ax1 = 0 end
         if math.abs(ax2) < 0.2 then ax2 = 0 end
 
-        if ax1 < -0.1 then player.left = true  end
         if ax1 >  0.1 then player.left = false end
 
-        self.x = self.x + ((ax1)*dt)*70
-        self.y = self.y + ((ax2/2)*dt)*50
+
+        local delta_vec2 = cpml.vec2.new(ax1, ax2)
+
+        delta_vec2 = delta_vec2:scale(0.1)
+
+        self.motion_vector = self.motion_vector:add(delta_vec2)
+        self.motion_vector:trim(1)
+
+        self.motion_vector = self.motion_vector:scale(1-dt*2)
+
+
+        print(self.motion_vector.x, self.motion_vector.y)
+        print(delta_vec2.x, delta_vec2.y)
+        self.x = self.x + 100 * (self.motion_vector.x*dt)
+        self.y = self.y + 50 * (self.motion_vector.y*dt)
 
         if math.abs(ax1) > 0.2 then
             self.inactivity = 0
@@ -106,14 +126,18 @@ return function (joyrecord,x,y)
     end
     
     function player.draw_states.normal(self,dx,dy,dz,f,ox)
-        local ax1, ax2, ax3, ax4 = self.joy:getAxes()
-        if math.abs(ax1) > 0.2 or math.abs(ax2) > 0.2 then
-            if self.statetimer % 0.4 < 0.2 then love.graphics.draw(self.frames.walk1,dx,dy - dz,nil,f,1,ox)
-            else love.graphics.draw(self.frames.walk2,dx,dy - dz,nil,f,1,ox) end
-        else
-            love.graphics.draw(self.frames.idle,dx,dy - dz,nil,f,1,ox)
-        end
+        -- local ax1, ax2, ax3, ax4 = self.joy:getAxes()
+        -- if math.abs(ax1) > 0.2 or math.abs(ax2) > 0.2 then
+        --     if self.statetimer % 0.4 < 0.2 then love.graphics.draw(self.frames.walk1,dx,dy - dz,nil,f,1,ox)
+        --     else love.graphics.draw(self.frames.walk2,dx,dy - dz,nil,f,1,ox) end
+        -- else
+        --     love.graphics.draw(self.frames.idle,dx,dy - dz,nil,f,1,ox)
+        -- end
+        love.graphics.rectangle("fill",dx, dy, 2, 2)
 
+        local frame_offset = math.floor((self.animation_timer*50)%2) 
+        print(frame_offset)
+        love.graphics.draw(self.frames.drive[1+frame_offset],dx,dy - dz,nil,1,1)
         
     end
 
@@ -150,6 +174,9 @@ return function (joyrecord,x,y)
         end
         self:current_update_state(dt)
         self.statetimer = self.statetimer + dt
+
+        self.animation_timer = self.animation_timer + dt
+
         self.z = self.z - dt * 10
         if self.z < 0 then self.z = 0 end
     end

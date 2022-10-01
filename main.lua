@@ -38,21 +38,10 @@ screenCanvas:setFilter("nearest","nearest")
 
 local bum_frames = {}
 bum_frames[1] = {
-    idle = love.graphics.newImage("/assets/blue_idle_00.png"),
-    punch1 = love.graphics.newImage("/assets/blue_ready_00.png"),
-    punch2 = love.graphics.newImage("/assets/blue_punch_02.png"),
-    block = love.graphics.newImage("/assets/blue_block_00.png"),
-    hit = love.graphics.newImage("/assets/blue_hit_00.png"),
-    knockover = love.graphics.newImage("/assets/blue_knockover_00.png"),
-    down = love.graphics.newImage("/assets/blue_down_00.png"),
-    
-    uppercut1 = love.graphics.newImage("/assets/blue_uppercut_00.png"),
-    uppercut2 = love.graphics.newImage("/assets/blue_uppercut_02.png"),
-    kick2 = love.graphics.newImage("/assets/blue_kick_02.png"),
-    elbow2 = love.graphics.newImage("/assets/blue_elbowpunch_02.png"),
-
-    walk1 = love.graphics.newImage("/assets/blue_idlewalk_0.png"),
-    walk2 = love.graphics.newImage("/assets/blue_idlewalk_1.png")
+    drive = {
+        love.graphics.newImage("/assets/blue-drive.png"),
+        love.graphics.newImage("/assets/blue-drive-2.png")
+    } 
 }
 bum_frames[2] = {
     idle = love.graphics.newImage("/assets/green_idle_00.png"),
@@ -67,9 +56,11 @@ bum_frames[2] = {
     uppercut2 = love.graphics.newImage("/assets/green_uppercut_02.png"),
     kick2 = love.graphics.newImage("/assets/green_kick_02.png"),
     elbow2 = love.graphics.newImage("/assets/green_elbowpunch_02.png"),
-
-    walk1 = love.graphics.newImage("/assets/green_idlewalk_2.png"),
-    walk2 = love.graphics.newImage("/assets/green_idlewalk_6.png")
+    drive = {
+        love.graphics.newImage("/assets/green_idlewalk_2.png"),
+        love.graphics.newImage("/assets/green_idlewalk_6.png")
+    }
+    
 }
 bum_frames[3] = {
     idle = love.graphics.newImage("/assets/gray_idle_00.png"),
@@ -85,8 +76,10 @@ bum_frames[3] = {
     kick2 = love.graphics.newImage("/assets/gray_kick_02.png"),
     elbow2 = love.graphics.newImage("/assets/gray_elbowpunch_02.png"),
 
-    walk1 = love.graphics.newImage("/assets/gray_idlewalk_0.png"),
-    walk2 = love.graphics.newImage("/assets/gray_idlewalk_1.png")
+    drive = {
+        love.graphics.newImage("/assets/gray_idlewalk_0.png"),
+        love.graphics.newImage("/assets/gray_idlewalk_1.png")
+    }
 }
 bum_frames[4] = {
     idle = love.graphics.newImage("/assets/red_idle_00.png"),
@@ -119,8 +112,12 @@ bum_frames[5] = {
     kick2 = love.graphics.newImage("/assets/kick_placeholder.png"),
     elbow2 = love.graphics.newImage("/assets/elbowpunch_placeholder.png"),
 
-    walk1 = love.graphics.newImage("/assets/idle_walk1.png"),
-    walk2 = love.graphics.newImage("/assets/idle_walk2.png")
+    drive = {
+        love.graphics.newImage("/assets/idle_walk1.png"),
+        love.graphics.newImage("/assets/idle_walk2.png")
+    }
+    
+    
 }
 
 joysticks = {}
@@ -217,26 +214,26 @@ function love.draw()
     local camsum = 0
     local camcount = 0
     
-    for i,object in pairs(world.objects) do
-        if object.isplayer then
-            camcount = camcount + 1
-            camsum = camsum + object.x
-        else
-        end
-    end
+    -- for i,object in pairs(world.objects) do
+    --     if object.isplayer then
+    --         camcount = camcount + 1
+    --         camsum = camsum + object.x
+    --     else
+    --     end
+    -- end
     
-    if camcount > 0 then
-        camgoal = camsum / camcount - 160
-    end
-    if camgoal < -160 then
-        camgoal = -160
-    end
-    if camgoal > 320 then
-        camgoal = 320
-    end
+    -- if camcount > 0 then
+    --     camgoal = camsum / camcount - 160
+    -- end
+    -- if camgoal < -160 then
+    --     camgoal = -160
+    -- end
+    -- if camgoal > 320 then
+    --     camgoal = 320
+    -- end
 
     spawnpos = camgoal + 160+love.math.random(100)-50
-    camx = camx + (camgoal - camx) * 0.1
+    -- camx = camx + (camgoal - camx) * 0.1
     love.graphics.clear()
     love.graphics.translate(math.floor(-camx),0)
     love.graphics.line(0,0,0,200)
