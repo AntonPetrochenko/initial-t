@@ -21,7 +21,8 @@ return function ()
                 if v.collides then
                     local x,y,w,h = physicsWorld:getRect(v)
 
-                    --love.graphics.rectangle('line',x,y,w,h)
+                    -- love.graphics.rectangle("fill",v.x, v.y, 1, 1)
+                    -- love.graphics.rectangle('line',x,y,w,h)
                 end
             end
         end,
@@ -30,7 +31,9 @@ return function ()
             local newid = love.math.random(999999999)
     
             if new.collides then
-                physicsWorld:add(new, new.x, new.y, new.pw, new.ph)
+                local x_offset = new.pox or 0
+                local y_offset = new.poy or 0
+                physicsWorld:add(new, new.x + x_offset, new.y + y_offset, new.pw, new.ph)
     
                 new.touching = function (target_type)
                     physicsWorld:queryRect(new.x-1,new.y-1,new.pw+2,new.ph+2, function (item)
@@ -39,12 +42,21 @@ return function ()
                     end)
                 end
     
-                new.finalize_motion = function (x,y)
-                    local actualX, actualY, cols = physicsWorld:move(new, new.x, new.y, function () return 'cross' end )
+                new.finalize_motion = function ()
+                    local actualX, actualY, cols = physicsWorld:move(new, new.x+x_offset, new.y+y_offset, function (item, other)
+                        if
+                            (item.againstme and item.againstme == 'cross') or
+                            (other.againstme and other.againstme == 'cross')
+                        then
+                            return 'cross'
+                        else
+                            return other.againstme or 'slide'
+                        end
+                    end)
                     for i,v in pairs(cols)  do
                         v.item.on_collision(v.item, v.other)
                     end
-                    new.x, new.y = actualX, actualY
+                    new.x, new.y = actualX - x_offset, actualY - y_offset 
                 end
     
             end

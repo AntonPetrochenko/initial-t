@@ -6,6 +6,8 @@
   ],
   "Lua.workspace.checkThirdParty": false,
   "Lua.diagnostics.disable": [
-    "lowercase-global"
-  ]
+    "lowercase-global",
+    "different-requires"
+  ],
+  "Lua.diagnostics.ignoredFiles": "Opened"
 }

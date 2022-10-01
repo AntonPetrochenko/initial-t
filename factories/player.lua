@@ -5,9 +5,8 @@ local cpml = require('cpml')
 return function (joyrecord,x,y)
     local player = {}
 
-    print(love.filesystem.getWorkingDirectory())
-
     player.team = 0
+    --- @type love.Joystick
     player.joy = joyrecord.instance
     player.inputbuffer = {}
     player.x = x
@@ -21,7 +20,11 @@ return function (joyrecord,x,y)
 
     player.collides = true
     player.pw = 24
-    player.ph = 32
+    player.ph = 10
+    player.poy = 32
+    player.pox = 4
+
+    player.againstme = 'slide'
 
     player.speed_rampup = 0
 
@@ -89,7 +92,14 @@ return function (joyrecord,x,y)
 
     player.left = false
 
-    local function walk_movement(self, dt)
+    function player.tick_motion_vector(self, dt, friction_multiplier)
+        self.motion_vector = self.motion_vector:scale(1-dt*(2*(friction_multiplier or 1)))
+        self.motion_vector = self.motion_vector:trim(3)
+        self.x = self.x + 100 * (self.motion_vector.x*dt)
+        self.y = self.y + 50 * (self.motion_vector.y*dt)
+    end
+
+    function player.walk_movement(self, dt)
         local ax1, ax2, ax3, ax4, ax5, ax6 = self.joy:getAxes()
         if math.abs(ax1) < 0.2 then ax1 = 0 end
         if math.abs(ax2) < 0.2 then ax2 = 0 end
@@ -97,32 +107,28 @@ return function (joyrecord,x,y)
         if ax1 >  0.1 then player.left = false end
 
 
-        local delta_vec2 = cpml.vec2.new(ax1, ax2)
+        local delta_vec2 = cpml.vec2.new(ax1-0.4, ax2)
 
         delta_vec2 = delta_vec2:scale(0.1)
-
         self.motion_vector = self.motion_vector:add(delta_vec2)
-        self.motion_vector:trim(1)
-
-        self.motion_vector = self.motion_vector:scale(1-dt*2)
-
-
-        print(self.motion_vector.x, self.motion_vector.y)
-        print(delta_vec2.x, delta_vec2.y)
-        self.x = self.x + 100 * (self.motion_vector.x*dt)
-        self.y = self.y + 50 * (self.motion_vector.y*dt)
+        self:tick_motion_vector(dt)
+        
 
         if math.abs(ax1) > 0.2 then
             self.inactivity = 0
         end
 
-        self.finalize_motion()
+        player.finalize_motion()
     end
 
     -- state normal
     function player.update_states.normal(self, dt)
         self.inactivity = self.inactivity + dt
-        walk_movement(self, dt)
+        if (player.joy:isDown(1)) then
+            player:setstate('charge')
+        end
+
+        player.walk_movement(self, dt)
     end
     
     function player.draw_states.normal(self,dx,dy,dz,f,ox)
@@ -133,13 +139,25 @@ return function (joyrecord,x,y)
         -- else
         --     love.graphics.draw(self.frames.idle,dx,dy - dz,nil,f,1,ox)
         -- end
-        love.graphics.rectangle("fill",dx, dy, 2, 2)
+        
 
-        local frame_offset = math.floor((self.animation_timer*50)%2) 
+        local frame_offset = math.floor((self.animation_timer*50)%2)
         print(frame_offset)
         love.graphics.draw(self.frames.drive[1+frame_offset],dx,dy - dz,nil,1,1)
         
     end
+
+    function player.update_states.charge(self, dt)
+        player:tick_motion_vector(dt, -2)
+        world:add(bullet(
+            100, 100, 100, 0, 0, 99)
+        )
+        if player.statetimer > 0.5 then
+            player:setstate('normal')
+        end
+        self.finalize_motion()
+    end
+    player.draw_states.charge = player.draw_states.normal
 
 
     function player.setstate(self, newstate)
@@ -157,25 +175,19 @@ return function (joyrecord,x,y)
     player:setstate("normal")
 
     function player.update(self,dt)
-
         
-
-        if self.x < -140 then
-            self.x = -140
-        end
-        if self.x > 600 then
-            self.x = 600
-        end
         if self.y < 110 then
             self.y = 110 
+            self.motion_vector.y = 0
         end
         if self.y > 160 then
             self.y = 160
+            self.motion_vector.y = 0
         end
         self:current_update_state(dt)
         self.statetimer = self.statetimer + dt
 
-        self.animation_timer = self.animation_timer + dt
+        self.animation_timer = self.animation_timer + dt/2
 
         self.z = self.z - dt * 10
         if self.z < 0 then self.z = 0 end

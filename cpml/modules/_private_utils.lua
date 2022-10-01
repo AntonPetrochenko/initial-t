@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- Functions exported by utils.lua but needed by vec2 or vec3 (which utils.lua requires)
 
 local private = {}

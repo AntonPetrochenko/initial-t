@@ -24,6 +24,15 @@ function dump(o)
     end
 end
 
+---Test if any key on joypad is down
+---@param joy love.Joystick
+function joyAnyDown(joy)
+    local buttonCount = joy:getButtonCount()
+    for i=0,buttonCount do
+        if joy:isDown(i) then return true end
+    end
+    return false
+end
 
 font = love.graphics.newFont("/assets/uni0553-webfont.ttf")
 love.graphics.setFont(font)
@@ -146,12 +155,11 @@ function love.update(dt)
     end
     gameTimer = gameTimer + dt
     for i,v in pairs(joysticks) do
-        if v.available and v.instance:isGamepadDown("start") and gameTimer < 10 then
+        if v.available and joyAnyDown(v.instance) and gameTimer < 10 then
             v.available = false
             local np = player_factory(v,spawnpos,100)
             v.player = np
             world:add(np)
-            print('foo)')
             sound_player_join:play()
             v.playerobj = np
             np.team = i
