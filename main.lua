@@ -147,7 +147,9 @@ for i,v in ipairs(love.joystick.getJoysticks()) do
 end
 
 function love.load()
-    world:add(picture_factory(0,0,"/assets/backdrop-src.png"))
+    -- world:add(picture_factory(0,0,"/assets/backdrop-src.png"))
+    world:add(parallax_factory(0,-30,"/assets/city-asset.png", 640, 50))
+    world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 50))
     world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
 end
 
