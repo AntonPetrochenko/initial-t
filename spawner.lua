@@ -14,14 +14,6 @@ end
 
 return {
   spawn = function (y)
-    local alivePlayers = 0
-    for i,v in pairs(joysticks) do
-      if not v.available then
-        alivePlayers = alivePlayers + 1
-      end
-    end
-    if alivePlayers > -1 then
-      spawn_obstacle(y)
-    end
+    spawn_obstacle(y)
   end
 }
