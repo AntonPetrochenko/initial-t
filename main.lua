@@ -13,7 +13,6 @@ local player_factory = require 'factories.player'
 local picture_factory = require 'factories.pictureobject'
 local parallax_factory = require 'factories.parallax'
 local picturelogic_factory = require 'factories.picturelogicobject'
-local obstacle_factory = require 'factories.obstacleobject'
 local gameTimer = 0
 local needRestart = false
 
@@ -171,7 +170,6 @@ function love.load()
     world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 70))
     world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
     world:add(picturelogic_factory(369,160,"/assets/kamaz-asset.png", 1))
-    world:add(obstacle_factory(329,150,"/assets/obstacle1.png", 200))
 end
 
 function love.update(dt)
@@ -204,6 +202,7 @@ function love.update(dt)
             sound_player_disconnect:play()
         end
     end
+
     world:update(dt)
 
     check_players_alive()

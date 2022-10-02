@@ -1,3 +1,5 @@
+local spawn_obstacle = require 'spawner'
+
 return function (x,y,path,speed)
   local new_picture = {}
   new_picture.drawable = love.graphics.newImage(path)
@@ -6,13 +8,25 @@ return function (x,y,path,speed)
 
   new_picture.timer = 0
 
+  new_picture.next_spawn = 3
+
+  new_picture.spawn_timer = 0
+
   function new_picture.draw(self)
     love.graphics.draw(self.drawable,self.x,self.y)
   end
 
   function new_picture.update(self,dt)
+    self.spawn_timer = self.spawn_timer + (dt)
     self.timer = self.timer + (dt*speed)
     self.y = 170.5 + math.sin(self.timer)* 50.5
+    
+
+    if (self.spawn_timer > self.next_spawn) then
+      self.spawn_timer = 0
+      self.next_spawn = math.random(1,10)
+      spawn_obstacle.spawn(self.y)
+    end
   end
 
   return new_picture

@@ -42,6 +42,10 @@ return function (x,y,path,speed)
     end
 
     self.finalize_motion()
+
+    if self.x < 0 - self.pw then
+      world:del(self)
+    end
   end
 
   return new_picture
