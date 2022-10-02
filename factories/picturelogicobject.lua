@@ -13,7 +13,7 @@ return function (x,y,path,speed)
   new_picture.spawn_timer = 0
 
   function new_picture.draw(self)
-    love.graphics.draw(self.drawable,self.x,self.y)
+    love.graphics.draw(self.drawable,self.x,self.y-50)
   end
 
   function new_picture.update(self,dt)
@@ -25,7 +25,7 @@ return function (x,y,path,speed)
     if (self.spawn_timer > self.next_spawn) then
       self.spawn_timer = 0
       self.next_spawn = math.random(1,10)
-      spawn_obstacle.spawn(self.y)
+      spawn_obstacle.spawn(self.y-30)
     end
   end
 
