@@ -1,6 +1,6 @@
 local bullet = require 'factories.bullet'
 
-local cpml = require('cpml')
+cpml = require('cpml')
 
 return function (joyrecord,x,y)
     local player = {}
@@ -12,6 +12,8 @@ return function (joyrecord,x,y)
     player.x = x
     player.y = y
     player.z = 0
+
+    player.state_name = 'normal'
 
     player.y_depth_correction = 32
 
@@ -62,7 +64,34 @@ return function (joyrecord,x,y)
 
     player.wpnbonustimer = 0
 
-    player.on_collision = function (self, other)
+    player.on_collision = function (self, other, ex_mutual)
+        if self.state_name == 'charge' then
+
+            local collision_angle = self.motion_vector:angle_between(other.motion_vector)
+
+            print(self.my_index,  collision_angle)
+
+            local winner, loser
+
+            if self.motion_vector:len() > other.motion_vector:len() then
+                winner, loser = self, other
+            else
+                winner, loser = other, self
+            end
+
+            winner.motion_vector = winner.motion_vector:flip_x():flip_y()
+            loser.motion_vector = loser.motion_vector:add(winner.motion_vector)
+
+            for i=0,50 do
+                local radius, theta = other.motion_vector:to_polar()
+                world:add(bullet(
+                    other.x+math.random(0,40), other.y+math.random(0,40), radius*math.random()*3+1, 0.93, theta+(math.random()*0.3), 0.5)
+                )
+            end
+        end
+        
+
+        
     end
 
     player.isplayer = true
@@ -96,7 +125,7 @@ return function (joyrecord,x,y)
 
     function player.tick_motion_vector(self, dt, friction_multiplier)
         self.motion_vector = self.motion_vector:scale(1-dt*(2*(friction_multiplier or 1)))
-        self.motion_vector = self.motion_vector:trim(3)
+        self.motion_vector = self.motion_vector:trim(5)
         self.x = self.x + 100 * (self.motion_vector.x*dt)
         self.y = self.y + 50 * (self.motion_vector.y*dt)
     end
@@ -109,7 +138,7 @@ return function (joyrecord,x,y)
         if ax1 >  0.1 then player.left = false end
 
 
-        local delta_vec2 = cpml.vec2.new(ax1-0.4, ax2) -- -0.4
+        local delta_vec2 = cpml.vec2.new(ax1, ax2) -- -0.4
 
         delta_vec2 = delta_vec2:scale(0.1)
         self.motion_vector = self.motion_vector:add(delta_vec2)
@@ -126,8 +155,15 @@ return function (joyrecord,x,y)
     -- state normal
     function player.update_states.normal(self, dt)
         self.inactivity = self.inactivity + dt
-        if (player.joy:isDown(1)) then
+        if (joyAnyDown(player.joy) and player.statetimer > 3) then
             player:setstate('charge')
+        end
+
+        if player.statetimer < 3 and player.statetimer % 0.15 < 0.05 then
+            local radius, theta = player.motion_vector:to_polar()
+            world:add(bullet(
+                player.x-5, player.y+32, radius*math.random()+1, 0.93, (math.pi+0.2)+(math.random()*0.3), 0.5)
+            )
         end
 
         player.walk_movement(self, dt)
@@ -144,19 +180,18 @@ return function (joyrecord,x,y)
         
 
         local frame_offset = math.floor((self.animation_timer*50)%2)
-        print(frame_offset)
         love.graphics.draw(self.frames.drive[1+frame_offset],dx,dy - dz,nil,1,1)
         
     end
 
     function player.update_states.charge(self, dt)
-        player:tick_motion_vector(dt, -2)
+        player:tick_motion_vector(dt, -1.2)
         local radius, theta = player.motion_vector:to_polar()
         world:add(bullet(
-            player.x-5, player.y+32, radius*math.random()+1, 0.93, (math.pi+0.2)+(math.random()*0.3), 0.5)
+            player.x-5, player.y+32, radius*math.random()+4, 0.93, (math.pi+0.2)+(math.random()*0.3), 0.5)
         )
         player.joy:setVibration(player.motion_vector:len())
-        if player.statetimer > 0.2 then
+        if player.statetimer > 0.7 and not joyAnyDown(player.joy) then
             player:setstate('normal')
         end
         self.finalize_motion()
@@ -168,7 +203,8 @@ return function (joyrecord,x,y)
         self.statetimer = 0
         self.inactivity = 0
         if self.update_states[newstate] then 
-            print("CHANGIN STATE!!11 " .. newstate)
+            player.state_name = newstate
+            print("Changing state for " .. (player.my_index or 'not known yet'), newstate)
             self.current_update_state = self.update_states[newstate]
             self.current_draw_state = self.draw_states[newstate]
         else 
@@ -183,12 +219,12 @@ return function (joyrecord,x,y)
         local bottom_cutoff = 220
         if self.y < top_cutoff then
             self.y = top_cutoff
-            self.motion_vector.y = 0
+            self.motion_vector = self.motion_vector:flip_y()
             self.motion_vector.x = -3
         end
         if self.y > bottom_cutoff then
             self.y = bottom_cutoff
-            self.motion_vector.y = 0
+            self.motion_vector = self.motion_vector:flip_y()
             self.motion_vector.x = -3
         end
 

@@ -30,7 +30,7 @@ end
 function joyAnyDown(joy)
     local buttonCount = joy:getButtonCount()
     for i=0,buttonCount do
-        if joy:isDown(i) then return true end
+        if i ~= 9 and joy:isDown(i) then return true end
     end
     return false
 end
@@ -139,11 +139,7 @@ for i,v in ipairs(love.joystick.getJoysticks()) do
             instance = v,
             playerobj = false
         }
-        print(v:getName())
     end
-    
-
-    print()
 end
 
 function love.load()
@@ -164,6 +160,7 @@ function love.update(dt)
             world:add(np)
             sound_player_join:play()
             v.playerobj = np
+            np.my_index = i
             np.team = i
             np.frames = bum_frames[i]
             needRestart = true
@@ -257,10 +254,10 @@ function love.draw()
         local offset = (160*i)-80
         if not joystick.available then
             local str = string.format(
-[[PLAYER %d
-HEALTH: %d
-SELECT TO LEAVE
-]],i,joystick.playerobj.health)
+                [[PLAYER %d
+                HEALTH: %d
+                SELECT TO LEAVE
+                ]],i,joystick.playerobj.health)
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
                 for yi=-5,5 do
