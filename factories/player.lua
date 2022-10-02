@@ -1,6 +1,18 @@
 local bullet = require 'factories.bullet'
 
+local sharedstates = require 'sharedstates'
+
+local cart_sprite = love.graphics.newImage("/assets/cart.png")
+
+local pvp_collide = require 'pvp_collision_handler'
+
 cpml = require('cpml')
+
+local _____abs = math.abs
+
+math.abs = function (n)
+    return _____abs(n or 0)
+end
 
 return function (joyrecord,x,y)
     local player = {}
@@ -24,8 +36,8 @@ return function (joyrecord,x,y)
 
     player.collides = true
     player.pw = 24
-    player.ph = 10
-    player.poy = 32
+    player.ph = 12
+    player.poy = 28
     player.pox = 4
 
     player.againstme = 'slide'
@@ -62,36 +74,19 @@ return function (joyrecord,x,y)
     }
 
 
+    local function merg(to, from) 
+        for k,v in pairs(from) do to[k] = v end
+    end
+
+    local lds = sharedstates.legacy_create_draw_states()
+    local lus = sharedstates.legacy_create_draw_states()
+    merg(player.draw_states, lds)
+    merg(player.update_states, lus)
+
     player.wpnbonustimer = 0
 
-    player.on_collision = function (self, other, ex_mutual)
-        if self.state_name == 'charge' then
-
-            local collision_angle = self.motion_vector:angle_between(other.motion_vector)
-
-            print(self.my_index,  collision_angle)
-
-            local winner, loser
-
-            if self.motion_vector:len() > other.motion_vector:len() then
-                winner, loser = self, other
-            else
-                winner, loser = other, self
-            end
-
-            winner.motion_vector = winner.motion_vector:flip_x():flip_y()
-            loser.motion_vector = loser.motion_vector:add(winner.motion_vector)
-
-            for i=0,50 do
-                local radius, theta = other.motion_vector:to_polar()
-                world:add(bullet(
-                    other.x+math.random(0,40), other.y+math.random(0,40), radius*math.random()*3+1, 0.93, theta+(math.random()*0.3), 0.5)
-                )
-            end
-        end
-        
-
-        
+    player.on_collision = function (self, other)
+        pvp_collide(self, other)
     end
 
     player.isplayer = true
@@ -162,7 +157,7 @@ return function (joyrecord,x,y)
         if player.statetimer < 3 and player.statetimer % 0.15 < 0.05 then
             local radius, theta = player.motion_vector:to_polar()
             world:add(bullet(
-                player.x-5, player.y+32, radius*math.random()+1, 0.93, (math.pi+0.2)+(math.random()*0.3), 0.5)
+                player.x-5, player.y+32, math.random()*3, 0.93, (math.pi+0.2)+(math.random()*0.5), 0.5, 4, true)
             )
         end
 
@@ -180,7 +175,8 @@ return function (joyrecord,x,y)
         
 
         local frame_offset = math.floor((self.animation_timer*50)%2)
-        love.graphics.draw(self.frames.drive[1+frame_offset],dx,dy - dz,nil,1,1)
+        love.graphics.draw(self.frames.cart.neutral,dx+8,dy - 4 - dz,nil,1,1)
+        love.graphics.draw(cart_sprite,dx,dy+14 - dz,nil,1,1)
         
     end
 
@@ -263,3 +259,4 @@ return function (joyrecord,x,y)
     end
     return player
 end
+

@@ -51,7 +51,11 @@ bum_frames[1] = {
     drive = {
         love.graphics.newImage("/assets/blue-drive.png"),
         love.graphics.newImage("/assets/blue-drive-2.png")
-    } 
+    },
+
+    cart = {
+        neutral = love.graphics.newImage("/assets/blue-cart-stand.png")
+    }
 }
 bum_frames[2] = {
     idle = love.graphics.newImage("/assets/green_idle_00.png"),
@@ -69,6 +73,10 @@ bum_frames[2] = {
     drive = {
         love.graphics.newImage("/assets/green_idlewalk_2.png"),
         love.graphics.newImage("/assets/green_idlewalk_6.png")
+    },
+
+    cart = {
+        neutral = love.graphics.newImage("/assets/green-cart-stand.png")
     }
     
 }
@@ -89,7 +97,13 @@ bum_frames[3] = {
     drive = {
         love.graphics.newImage("/assets/gray_idlewalk_0.png"),
         love.graphics.newImage("/assets/gray_idlewalk_1.png")
+    },
+
+    cart = {
+        neutral = love.graphics.newImage("/assets/gray-cart-stand.png")
     }
+
+    
 }
 bum_frames[4] = {
     idle = love.graphics.newImage("/assets/red_idle_00.png"),
@@ -106,7 +120,11 @@ bum_frames[4] = {
     elbow2 = love.graphics.newImage("/assets/red_elbowpunch_02.png"),
 
     walk1 = love.graphics.newImage("/assets/red_idlewalk_0.png"),
-    walk2 = love.graphics.newImage("/assets/red_idlewalk_1.png")
+    walk2 = love.graphics.newImage("/assets/red_idlewalk_1.png"),
+
+    cart = {
+        neutral = love.graphics.newImage("/assets/red-cart-stand.png")
+    }
 }
 bum_frames[5] = {
     idle = love.graphics.newImage("/assets/idle_placeholder.png"),
@@ -125,6 +143,10 @@ bum_frames[5] = {
     drive = {
         love.graphics.newImage("/assets/idle_walk1.png"),
         love.graphics.newImage("/assets/idle_walk2.png")
+    },
+
+    cart = {
+        neutral = love.graphics.newImage("/assets/blue-cart-stand.png")
     }
     
     
@@ -145,7 +167,7 @@ end
 function love.load()
     -- world:add(picture_factory(0,0,"/assets/backdrop-src.png"))
     world:add(parallax_factory(0,-30,"/assets/city-asset.png", 640, 50))
-    world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 50))
+    world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 70))
     world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
 end
 

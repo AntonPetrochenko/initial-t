@@ -1,8 +1,9 @@
 local gradient = require 'gradient_mesh'
 
 local bullet_gradient = gradient('horizontal', {0.5,0,0,0},{1,0,0,1}, {1,1,0,1}, {1,1,1,1}, {1,1,1,1})
+local smoke_gradient = gradient('horizontal', {0.1,0.1,0.1,1}, {0.1,0.1,0.1,1}, {0.5,0.5,0.5,0},{0.5,0.5,0.5,1}, {0.5,0.5,0.5,1})
 
-return function (x,y,vel, damping, angle, cut, width)
+return function (x,y,vel, damping, angle, cut, width, is_smoke, vdamp)
   local new_bullet = {}
 
   new_bullet.x = x
@@ -37,7 +38,7 @@ return function (x,y,vel, damping, angle, cut, width)
     
 
     self.x = self.x + math.cos(angle)*self.vel
-    self.y = self.y + math.sin(angle)*self.vel
+    self.y = self.y + (math.sin(angle)*self.vel) / (vdamp and 2 or 1)
 
     -- self:finalize_motion()
 
@@ -52,7 +53,12 @@ return function (x,y,vel, damping, angle, cut, width)
 
     local length = 8 * (  math.log( math.pow(self.vel, 0.6)  ) + 1.5 )
     
-    love.graphics.draw(bullet_gradient, self.x+4, self.y+4, self.angle, length, self.width or 1, 0.5, 0.5 )
+    if is_smoke then
+      love.graphics.draw(smoke_gradient, self.x+4, self.y+4, self.angle, length, self.width or 1, 0.5, 0.5 )
+    else
+      love.graphics.draw(bullet_gradient, self.x+4, self.y+4, self.angle, length, self.width or 1, 0.5, 0.5 )
+    end
+      
     -- love.graphics.rectangle("fill",self.x, self.y,2,2)
   end
   return new_bullet
