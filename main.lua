@@ -54,6 +54,13 @@ local bum_names = {
     "Герасимыч"
 }
 
+local bum_images = {
+    love.graphics.newImage("/assets/mug_blue.png"),
+    love.graphics.newImage("/assets/mug_green.png"),
+    love.graphics.newImage("/assets/mug_gray.png"),
+    love.graphics.newImage("/assets/mug_red.png")
+}
+
 local bum_frames = {}
 bum_frames[1] = {
     knockover = love.graphics.newImage("/assets/blue_knockover_00.png"),
@@ -170,7 +177,8 @@ for i,v in ipairs(love.joystick.getJoysticks()) do
             available = true,
             instance = v,
             playerobj = false,
-            name = bum_names[i]
+            name = bum_names[i],
+            image = bum_images[i]
         }
 
         dump(joysticks[#joysticks])
@@ -291,10 +299,10 @@ function love.draw()
 
 
             local str = string.format(
-                [[PLAYER %d
-                HEALTH: %d
-                SELECT TO LEAVE
-                ]],i,joystick.playerobj.health)
+                [[%s
+HEALTH: %d
+SELECT TO LEAVE
+                ]],joystick.name,joystick.playerobj.health)
 
 
             love.graphics.setColor(0,0,0,1)
@@ -304,6 +312,7 @@ function love.draw()
                 end
             end
             love.graphics.setColor(1,1,1,1)
+            love.graphics.draw(joystick.image, 50, 50, r, 0.1, 0.1)
             love.graphics.print(str,offset,50,0)
         else
             love.graphics.setColor(0,0,0,1)
