@@ -16,6 +16,7 @@ local parallax_factory = require 'factories.parallax'
 local picturelogic_factory = require 'factories.picturelogicobject'
 local gameTimer = 0
 local needRestart = false
+local heart = love.graphics.newImage("/assets/heart-asset.png")
 
 function point_direction(x1,y1,x2,y2)
     return math.atan2(y2-y1,x2-x1)
@@ -298,26 +299,34 @@ function love.draw()
     love.graphics.draw(screenCanvas,0,0,0,4,4)
     love.graphics.setFont(bigFont)
     for i, joystick in ipairs(joysticks) do
-        local offset = (160*i)-80
+        local offset = (400*i)-350
         if not joystick.available then
 
 
-            local str = string.format(
-                [[%s
-HEALTH: %d
-SELECT TO LEAVE
-                ]],joystick.name,joystick.playerobj.health)
+            local strfirst = string.format(
+                [[%s]],joystick.name)
 
+                -- ,joystick.playerobj.health
+
+            local strsecond = string.format(
+                [[SELECT TO LEAVE]]
+            )
+            
 
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
                 for yi=-5,5 do
-                    love.graphics.print(str,offset+xi+40,50+yi)
+                    love.graphics.print(strfirst,offset+xi+90,50+yi)
+                    love.graphics.print(strsecond,offset+xi+90,110+yi)
                 end
             end
             love.graphics.setColor(1,1,1,1)
-            love.graphics.draw(joystick.image, 50, 50, r, 0.15, 0.15)
-            love.graphics.print(str,offset+40,50,0)
+            love.graphics.draw(joystick.image, offset, 50, r, 0.20, 0.20)
+            love.graphics.print(strfirst,offset+90,50,0)
+            for count=1,joystick.playerobj.health do
+                love.graphics.draw(heart, offset+((count*40) + 40), 70, r, 0.05, 0.05)
+            end
+            love.graphics.print(strsecond,offset+90,110,0)
         else
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
