@@ -73,7 +73,10 @@ bum_frames[1] = {
     },
 
     cart = {
-        neutral = love.graphics.newImage("/assets/blue-cart-stand.png")
+        neutral = love.graphics.newImage("/assets/blue-cart-stand.png"),
+        left = love.graphics.newImage("/assets/blue-cart-left.png"),
+        right = love.graphics.newImage("/assets/blue-cart-right.png"),
+        hurt = love.graphics.newImage("/assets/blue-cart-hurt.png")
     }
 }
 bum_frames[2] = {
@@ -95,7 +98,10 @@ bum_frames[2] = {
     },
 
     cart = {
-        neutral = love.graphics.newImage("/assets/green-cart-stand.png")
+        neutral = love.graphics.newImage("/assets/green-cart-stand.png"),
+        left = love.graphics.newImage("/assets/green-cart-left.png"),
+        right = love.graphics.newImage("/assets/green-cart-right.png"),
+        hurt = love.graphics.newImage("/assets/green-cart-hurt.png"),
     }
     
 }
@@ -119,7 +125,10 @@ bum_frames[3] = {
     },
 
     cart = {
-        neutral = love.graphics.newImage("/assets/gray-cart-stand.png")
+        neutral = love.graphics.newImage("/assets/gray-cart-stand.png"),
+        left = love.graphics.newImage("/assets/gray-cart-left.png"),
+        right = love.graphics.newImage("/assets/gray-cart-right.png"),
+        hurt = love.graphics.newImage("/assets/gray-cart-hurt.png"),
     }
 
     
@@ -142,7 +151,10 @@ bum_frames[4] = {
     walk2 = love.graphics.newImage("/assets/red_idlewalk_1.png"),
 
     cart = {
-        neutral = love.graphics.newImage("/assets/red-cart-stand.png")
+        neutral = love.graphics.newImage("/assets/red-cart-stand.png"),
+        left = love.graphics.newImage("/assets/red-cart-left.png"),
+        right = love.graphics.newImage("/assets/red-cart-right.png"),
+        hurt = love.graphics.newImage("/assets/red-cart-hurt.png"),
     }
 }
 bum_frames[5] = {

@@ -113,6 +113,7 @@ return function (joyrecord,x,y)
     
 
     player.statetimer = 0
+    player.hurttimer = 0
 
     player.left = false
 
@@ -165,7 +166,7 @@ return function (joyrecord,x,y)
     end
     
     function player.draw_states.normal(self,dx,dy,dz,f,ox)
-        -- local ax1, ax2, ax3, ax4 = self.joy:getAxes()
+        local ax1, ax2, ax3, ax4 = self.joy:getAxes()
         -- if math.abs(ax1) > 0.2 or math.abs(ax2) > 0.2 then
         --     if self.statetimer % 0.4 < 0.2 then love.graphics.draw(self.frames.walk1,dx,dy - dz,nil,f,1,ox)
         --     else love.graphics.draw(self.frames.walk2,dx,dy - dz,nil,f,1,ox) end
@@ -175,7 +176,11 @@ return function (joyrecord,x,y)
         
 
         local frame_offset = math.floor((self.animation_timer*50)%2)
-        love.graphics.draw(self.frames.cart.neutral,dx+8,dy - 4 - dz,nil,1,1)
+        local face = 'neutral'
+        if (ax1 < -0.1) then face = 'left' end
+        if (ax1 > 0.1) then face = 'right' end
+        if (self.hurttimer > 0) then face = 'hurt' end
+        love.graphics.draw(self.frames.cart[face],dx+8,dy - 4 - dz,nil,1,1)
         love.graphics.draw(cart_sprite,dx,dy+14 - dz,nil,1,1)
         
     end
@@ -213,6 +218,9 @@ return function (joyrecord,x,y)
     function player.update(self,dt)
         local top_cutoff = 90
         local bottom_cutoff = 220
+
+        self.hurttimer = self.hurttimer - dt
+
         if self.y < top_cutoff then
             self.y = top_cutoff
             self.motion_vector = self.motion_vector:flip_y()
