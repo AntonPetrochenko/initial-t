@@ -170,8 +170,8 @@ function love.load()
     world:add(parallax_factory(0,-30,"/assets/city-asset.png", 640, 50))
     world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 70))
     world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
-    world:add(picturelogic_factory(329,160,"/assets/kamaz-asset.png", 0.5))
-    world:add(obstacle_factory(300,150,"/assets/obstacle1.png", 200))
+    world:add(picturelogic_factory(369,160,"/assets/kamaz-asset.png", 0.5))
+    world:add(obstacle_factory(329,150,"/assets/obstacle1.png", 200))
 end
 
 function love.update(dt)
