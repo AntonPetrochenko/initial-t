@@ -296,6 +296,7 @@ function love.draw()
     love.graphics.setCanvas()
     love.graphics.translate(camx,0)
     love.graphics.draw(screenCanvas,0,0,0,4,4)
+    love.graphics.setFont(bigFont)
     for i, joystick in ipairs(joysticks) do
         local offset = (160*i)-80
         if not joystick.available then
@@ -311,12 +312,12 @@ SELECT TO LEAVE
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
                 for yi=-5,5 do
-                    love.graphics.print(str,offset+xi,50+yi)
+                    love.graphics.print(str,offset+xi+40,50+yi)
                 end
             end
             love.graphics.setColor(1,1,1,1)
-            love.graphics.draw(joystick.image, 50, 50, r, 0.1, 0.1)
-            love.graphics.print(str,offset,50,0)
+            love.graphics.draw(joystick.image, 50, 50, r, 0.15, 0.15)
+            love.graphics.print(str,offset+40,50,0)
         else
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
@@ -328,4 +329,5 @@ SELECT TO LEAVE
             love.graphics.print("PRESS START\nPLAYER " .. joystick.name,offset,50,0)
         end
     end
+    love.graphics.setFont(font)
 end
