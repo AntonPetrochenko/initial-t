@@ -50,6 +50,8 @@ screenCanvas:setFilter("nearest","nearest")
 
 local bum_frames = {}
 bum_frames[1] = {
+    knockover = love.graphics.newImage("/assets/blue_knockover_00.png"),
+    down = love.graphics.newImage("/assets/blue_down_00.png"),
     drive = {
         love.graphics.newImage("/assets/blue-drive.png"),
         love.graphics.newImage("/assets/blue-drive-2.png")
@@ -170,7 +172,7 @@ function love.load()
     world:add(parallax_factory(0,-30,"/assets/city-asset.png", 640, 50))
     world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 70))
     world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
-    world:add(picturelogic_factory(369,160,"/assets/kamaz-asset.png", 1))
+    world:add(picturelogic_factory(369,160,"/assets/kamaz-asset.png", 1.3))
     world:add(obstacle_factory(329,150,"/assets/obstacle1.png", 200))
 end
 
@@ -193,11 +195,7 @@ function love.update(dt)
             needRestart = true
         end
 
-        if v.playerobj and v.playerobj.health < 1 then
-            world:add(picture_factory(v.playerobj.x,v.playerobj.y,"/assets/tombstone.png",true))
-        end
-
-        if not v.available and (v.instance:isGamepadDown("back") or v.playerobj.health < 1 or v.playerobj.inactivity > 30)  then
+        if not v.available and (v.instance:isGamepadDown("back") or v.playerobj.inactivity > 120 or v.instance.iwannadie)  then
             v.available = true
             world:del(v.player)
             v.playerobj = false
