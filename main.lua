@@ -35,14 +35,14 @@ function joyAnyDown(joy)
     return false
 end
 
-font = love.graphics.newFont("/assets/uni0553-webfont.ttf")
+font = love.graphics.newFont("/assets/PressStart2P-Regular.ttf")
 love.graphics.setFont(font)
 
 spawnpos = 0
 camgoal = 0
 camx = 0
 
-screenCanvas = love.graphics.newCanvas(160*2,90*2)
+screenCanvas = love.graphics.newCanvas(200*2,140*2)
 love.graphics.setDefaultFilter("nearest", "nearest")
 screenCanvas:setFilter("nearest","nearest")
 
@@ -148,8 +148,7 @@ end
 
 function love.load()
     world:add(picture_factory(0,0,"/assets/backdrop-src.png"))
-    world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 452, 90))
-    world:add(parallax_factory(452,103,"/assets/doroga-asset.png", 452, 90))
+    world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
 end
 
 function love.update(dt)

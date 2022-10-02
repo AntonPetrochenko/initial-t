@@ -7,12 +7,13 @@ return function (x,y,path,size, speed)
 
     function new_picture.draw(self)
         love.graphics.draw(self.drawable,self.x,self.y)
+        love.graphics.draw(self.drawable,self.x+self.size,self.y)
     end
 
     function new_picture.update(self,dt)
         self.x = self.x - (dt * speed)
         if self.x < (-self.size) then
-            self.x = self.size - dt * speed
+            self.x = self.x + self.size
         end
     end
 

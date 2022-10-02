@@ -2,13 +2,15 @@ local gradient = require 'gradient_mesh'
 
 local bullet_gradient = gradient('horizontal', {0.5,0,0,0},{1,0,0,1}, {1,1,0,1}, {1,1,1,1}, {1,1,1,1})
 
-return function (x,y,vel, damping, angle, cut)
+return function (x,y,vel, damping, angle, cut, width)
   local new_bullet = {}
 
   new_bullet.x = x
   new_bullet.y = y
 
   new_bullet.damping = damping
+
+  new_bullet.width = width
 
   new_bullet.angle = angle
 
@@ -24,7 +26,7 @@ return function (x,y,vel, damping, angle, cut)
 
   end
 
-  new_bullet.life = 10
+  new_bullet.life = cut
 
   function new_bullet.update(self, dt)
 
@@ -43,16 +45,15 @@ return function (x,y,vel, damping, angle, cut)
       self.damping = 0.9
     end
     
-    -- if self.vel < 0.1 then world:del(self) end
+    if self.vel < 0.1 then world:del(self) end
   end
 
   function new_bullet.draw(self)
 
     local length = 8 * (  math.log( math.pow(self.vel, 0.6)  ) + 1.5 )
-
-    print('drawn', self.x, self.y)
     
-    love.graphics.draw(bullet_gradient, self.x+4, self.y+4, self.angle, length, 8, 0.5, 0.5 )
+    love.graphics.draw(bullet_gradient, self.x+4, self.y+4, self.angle, length, self.width or 1, 0.5, 0.5 )
+    -- love.graphics.rectangle("fill",self.x, self.y,2,2)
   end
   return new_bullet
 end

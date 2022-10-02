@@ -14,17 +14,35 @@ return function ()
         end,
         draw = function(self,dt)
             table.sort(self.objects, function (left, right)
-                return left.y < right.y
+                return left.y+(left.y_depth_correction or 0) < right.y+(right.y_depth_correction or 0)
             end)
             for i,v in pairs(self.objects) do
                 v:draw(dt)
-                if v.collides then
-                    local x,y,w,h = physicsWorld:getRect(v)
-
-                    -- love.graphics.rectangle("fill",v.x, v.y, 1, 1)
-                    -- love.graphics.rectangle('line',x,y,w,h)
+                if love.keyboard.isDown("a") then
+                    if v.collides then
+                        local x,y,w,h = physicsWorld:getRect(v)
+    
+                        love.graphics.rectangle("fill",v.x, v.y, 1, 1)
+                        love.graphics.rectangle('line',x,y,w,h)
+                    end
+    
+                    
                 end
+                if love.keyboard.isDown("z") then
+                    love.graphics.setColor(0,0,0,1)
+                    for xi=-1,1 do
+                        for yi=-1,1 do
+                            love.graphics.print(math.floor(v.x) .. " / ".. math.floor(v.y),math.floor(v.x+xi),math.floor(v.y+yi))
+                        end
+                    end
+                    love.graphics.setColor(1,1,1,1)
+                    love.graphics.print(math.floor(v.x) .. " / ".. math.floor(v.y),v.x,v.y)
+                end
+                
             end
+
+
+            
         end,
         add = function(self,new)
             local o = self.objects
