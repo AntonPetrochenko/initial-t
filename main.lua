@@ -47,6 +47,13 @@ screenCanvas = love.graphics.newCanvas(200*2,140*2)
 love.graphics.setDefaultFilter("nearest", "nearest")
 screenCanvas:setFilter("nearest","nearest")
 
+local bum_names = {
+    "Веталь",
+    "Больжедор",
+    "Ахмыл",
+    "Герасимыч"
+}
+
 local bum_frames = {}
 bum_frames[1] = {
     knockover = love.graphics.newImage("/assets/blue_knockover_00.png"),
@@ -162,10 +169,14 @@ for i,v in ipairs(love.joystick.getJoysticks()) do
         joysticks[#joysticks+1] = {
             available = true,
             instance = v,
-            playerobj = false
+            playerobj = false,
+            name = bum_names[i]
         }
+
+        dump(joysticks[#joysticks])
     end
 end
+
 
 function love.load()
     world:add(parallax_factory(0,-30,"/assets/city-asset.png", 640, 50))
@@ -193,7 +204,7 @@ function love.update(dt)
             needRestart = true
         end
 
-        if not v.available and (v.instance:isGamepadDown("back") or v.playerobj.inactivity > 120 or v.instance.iwannadie)  then
+        if not v.available and (v.instance:isGamepadDown("back") or v.playerobj.inactivity > 120 or v.playerobj.iwannadie)  then
             v.available = true
             world:del(v.player)
             v.playerobj = false
@@ -277,11 +288,15 @@ function love.draw()
     for i, joystick in ipairs(joysticks) do
         local offset = (160*i)-80
         if not joystick.available then
+
+
             local str = string.format(
                 [[PLAYER %d
                 HEALTH: %d
                 SELECT TO LEAVE
                 ]],i,joystick.playerobj.health)
+
+
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
                 for yi=-5,5 do
@@ -294,11 +309,11 @@ function love.draw()
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do
                 for yi=-5,5 do
-                    love.graphics.print("PRESS START\nPLAYER " .. i,offset+xi,50+yi)
+                    love.graphics.print("PRESS START\nPLAYER " .. joystick.name,offset+xi,50+yi)
                 end
             end
             love.graphics.setColor(1,1,1,1)
-            love.graphics.print("PRESS START\nPLAYER " .. i,offset,50,0)
+            love.graphics.print("PRESS START\nPLAYER " .. joystick.name,offset,50,0)
         end
     end
 end

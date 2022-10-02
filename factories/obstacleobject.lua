@@ -12,12 +12,12 @@ return function (x,y,path,speed)
 
   new_picture.collides = true
   new_picture.pw = 24
-  new_picture.ph = 20
-  new_picture.poy = 32
+  new_picture.ph = 16
+  new_picture.poy = 38
   new_picture.pox = 4
 
   new_picture.y_depth_correction = 32
-  
+
   new_picture.againstme = 'slide'
 
   new_picture.on_collision = function (self, other)

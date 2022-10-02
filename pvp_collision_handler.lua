@@ -19,7 +19,6 @@ local function pvp_collide (self, other, ex_mutual)
       winner.motion_vector = winner.motion_vector:flip_x():flip_y():trim(0.5)
 
       winner:setstate('normal')
-      loser:setstate('stun')
       
 
       for i=0,50 do

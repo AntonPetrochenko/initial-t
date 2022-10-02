@@ -22,7 +22,6 @@ function sharedstates.legacy_create_update_states()
         self.x = self.x - 200 * dt
         if self.statetimer > 0.5 then
             self.hitbox.enabled = true
-            self.health = self.health - 1
             self:setstate("legacy_normal")
             
         end

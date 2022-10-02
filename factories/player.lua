@@ -224,13 +224,26 @@ return function (joyrecord,x,y)
             self.motion_vector.x = -3
         end
 
+        if self.x > 330 then
+            self.x = 330
+            self.motion_vector.x = 0
+        end
+
         if self.x < -50 then
             if self.state_name == 'legacy_down' then
-                self.x = 10
-                self.y = top_cutoff + self.my_index * 40
-                self.motion_vector = cpml.vec2(5, 0)
-                self:setstate('normal')
+                if self.health < 1 then
+                    self.iwannadie = true
+                else
+                    self.x = 10
+                    self.y = top_cutoff + self.my_index * 40
+                    self.motion_vector = cpml.vec2(5, 0)
+                    self:setstate('normal')
+                    self.againstme = 'slide'
+                    self.health = self.health - 1
+                    print(self.health)
+                end
             else
+                
                 self.againstme = 'cross'
                 self.knockvx = 30
                 self.knockvz = 10
