@@ -236,7 +236,7 @@ return function (joyrecord,x,y)
                 else
                     self.x = 10
                     self.y = top_cutoff + self.my_index * 40
-                    self.motion_vector = cpml.vec2(5, 0)
+                    self.motion_vector = cpml.vec2(3, 0)
                     self:setstate('normal')
                     self.againstme = 'slide'
                     self.health = self.health - 1

@@ -1,4 +1,5 @@
 sounds = require 'sounds'
+local textmsg = require 'textmsg'
 
 worldMaker = require 'oo'
 
@@ -37,6 +38,7 @@ function joyAnyDown(joy)
 end
 
 font = love.graphics.newFont("/assets/PressStart2P-Regular.ttf")
+bigFont = love.graphics.newFont("/assets/PressStart2P-Regular.ttf",20)
 love.graphics.setFont(font)
 
 spawnpos = 0
@@ -213,6 +215,7 @@ function love.update(dt)
         end
 
         if not v.available and (v.instance:isGamepadDown("back") or v.playerobj.inactivity > 120 or v.playerobj.iwannadie)  then
+            textmsg('Так и помер дед ' .. v.name)
             v.available = true
             world:del(v.player)
             v.playerobj = false
