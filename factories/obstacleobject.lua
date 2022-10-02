@@ -1,3 +1,4 @@
+local handler = require('obstacle_collision_handler')
 return function (x,y,path,speed)
   local new_picture = {}
   new_picture.drawable = love.graphics.newImage(path)
@@ -6,6 +7,22 @@ return function (x,y,path,speed)
   new_picture.ready = 0
 
   new_picture.timer = 0
+
+  new_picture.is_obstacle = true
+
+  new_picture.collides = true
+  new_picture.pw = 24
+  new_picture.ph = 20
+  new_picture.poy = 32
+  new_picture.pox = 4
+
+  new_picture.y_depth_correction = 32
+  
+  new_picture.againstme = 'slide'
+
+  new_picture.on_collision = function (self, other)
+    handler(self, other)
+  end
 
   function new_picture.draw(self)
     if (self.timer < 1.5) then
@@ -23,6 +40,8 @@ return function (x,y,path,speed)
     if self.ready == 1 then
       self.x = self.x - (dt * speed)
     end
+
+    self.finalize_motion()
   end
 
   return new_picture

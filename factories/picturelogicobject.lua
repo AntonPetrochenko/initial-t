@@ -12,7 +12,7 @@ return function (x,y,path,speed)
 
   function new_picture.update(self,dt)
     self.timer = self.timer + (dt*speed)
-    self.y = 137.5 + math.sin(self.timer)* 33.5
+    self.y = 170.5 + math.sin(self.timer)* 50.5
   end
 
   return new_picture

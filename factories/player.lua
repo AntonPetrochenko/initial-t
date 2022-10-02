@@ -1,12 +1,9 @@
 local bullet = require 'factories.bullet'
-
 local sharedstates = require 'sharedstates'
-
 local cart_sprite = love.graphics.newImage("/assets/cart.png")
-
 local pvp_collide = require 'pvp_collision_handler'
-
-cpml = require('cpml')
+local obstacle_collision_handler = require 'obstacle_collision_handler'
+local cpml = require('cpml')
 
 local _____abs = math.abs
 
@@ -86,7 +83,8 @@ return function (joyrecord,x,y)
     player.wpnbonustimer = 0
 
     player.on_collision = function (self, other)
-        pvp_collide(self, other)
+        if other.is_player then pvp_collide(self, other) end
+        if other.is_obstacle then obstacle_collision_handler(other, self) end
     end
 
     player.isplayer = true
