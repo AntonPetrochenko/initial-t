@@ -76,7 +76,7 @@ return function (joyrecord,x,y)
     end
 
     local lds = sharedstates.legacy_create_draw_states()
-    local lus = sharedstates.legacy_create_draw_states()
+    local lus = sharedstates.legacy_create_update_states()
     merg(player.draw_states, lds)
     merg(player.update_states, lus)
 
@@ -150,6 +150,8 @@ return function (joyrecord,x,y)
         self.inactivity = self.inactivity + dt
         if (joyAnyDown(player.joy) and player.statetimer > 3) then
             player:setstate('charge')
+            
+            --player:setstate('legacy_knockover')
         end
 
         if player.statetimer < 3 and player.statetimer % 0.15 < 0.05 then
@@ -223,16 +225,29 @@ return function (joyrecord,x,y)
         end
 
         if self.x < -50 then
-            for i=0,50 do
-                world:add(bullet(
-                    self.x, self.y+20, 10*math.random(),
-                    0.99,
-                    (-math.random()*0.5),
-                    2,
-                    16
-                ))
+            if self.state_name == 'legacy_down' then
+                self.x = 10
+                self.y = top_cutoff + self.my_index * 40
+                self.motion_vector = cpml.vec2(5, 0)
+                self:setstate('normal')
+            else
+                self.againstme = 'cross'
+                self.knockvx = 30
+                self.knockvz = 10
+                self:setstate('legacy_knockover')
+                for i=0,50 do
+                    world:add(bullet(
+                        self.x, self.y+20, 10*math.random(),
+                        0.99,
+                        (-math.random()*0.5),
+                        2,
+                        16
+                    ))
+                end
             end
-            self.x = 40
+            
+
+            
             
         end
         self:current_update_state(dt)

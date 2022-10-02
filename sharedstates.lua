@@ -9,39 +9,41 @@ function sharedstates.legacy_create_update_states()
     function new_update_states.legacy_knockover(self,dt)
         self.z = self.z + dt*self.knockvz*30
         self.x = self.x + dt*self.knockvx*10
-        self.knockvz = self.knockvz - dt * 10
+        self.knockvz = self.knockvz - dt * 20
         if self.z < 0 then
             self.z = 0
-            self:setstate("down")
+            self:setstate("legacy_down")
             self.stamina = 3
         end
         self:finalize_motion()
     end
 
     function new_update_states.legacy_down(self,dt)
+        self.x = self.x - 200 * dt
         if self.statetimer > 0.5 then
             self.hitbox.enabled = true
             self.health = self.health - 1
-            self:setstate("normal")
+            self:setstate("legacy_normal")
+            
         end
     end
 
     function new_update_states.legacy_hit1(self,dt)
         self.x = self.x + dt*self.knockvx * 6
         if self.statetimer > 0.1 then
-            self:setstate("hit2")
+            self:setstate("legacy_hit2")
         end
     end
     function new_update_states.legacy_hit2(self)
         if self.statetimer > 0.1 then
             self.hitbox.enabled = true
-            self:setstate("normal")
+            self:setstate("legacy_normal")
         end
     end
 
     function new_update_states.legacy_punch1(self)
         if self.statetimer > 0.1 then
-            self:setstate("punch2")
+            self:setstate("legacy_punch2")
         end
     end
     function new_update_states.legacy_punch2(self)
@@ -51,13 +53,13 @@ function sharedstates.legacy_create_update_states()
             hitbox.tryhit(self, self.x+19, self.y+12, self.z, 5, 5, 5, {10, 0, 3})
         end
         if self.statetimer > 0.1 then
-            self:setstate("normal")
+            self:setstate("legacy_normal")
         end
     end
 
     function new_update_states.legacy_uppercut1(self)
         if self.statetimer > 0.33 then
-            self:setstate("uppercut2")
+            self:setstate("legacy_uppercut2")
         end
     end
     function new_update_states.legacy_uppercut2(self)
@@ -67,13 +69,13 @@ function sharedstates.legacy_create_update_states()
             hitbox.tryhit(self, self.x+19, self.y+12, self.z, 5, 5, 5, {7, 0, 11})
         end
         if self.statetimer > 0.1 then
-            self:setstate("normal")
+            self:setstate("legacy_normal")
         end
     end
 
     function new_update_states.legacy_kick1(self)
         if self.statetimer > 0.2 then
-            self:setstate("kick2")
+            self:setstate("legacy_kick2")
         end
     end
     function new_update_states.legacy_kick2(self)
@@ -83,13 +85,13 @@ function sharedstates.legacy_create_update_states()
             hitbox.tryhit(self, self.x+19+5, self.y+12, self.z, 5, 5, 5, {16, 0, 2})
         end
         if self.statetimer > 0.1 then
-            self:setstate("normal")
+            self:setstate("legacy_normal")
         end
     end
 
     function new_update_states.legacy_elbow1(self)
         if self.statetimer > 0.1 then
-            self:setstate("elbow2")
+            self:setstate("legacy_elbow2")
         end
     end
     function new_update_states.legacy_elbow2(self)
@@ -99,14 +101,14 @@ function sharedstates.legacy_create_update_states()
             hitbox.tryhit(self, self.x, self.y+12, self.z, 5, 5, 5, {-15, 0, 2})            
         end
         if self.statetimer > 0.1 then
-            self:setstate("normal")
+            self:setstate("legacy_normal")
         end
     end
 
     function new_update_states.legacy_block(self,dx,dy,dz,f,ox)
         if self.statetimer > 1 then
             self.hitbox.enabled = true
-            self:setstate("normal")
+            self:setstate("legacy_normal")
         end
     end
 
@@ -118,7 +120,16 @@ function sharedstates.legacy_create_draw_states()
     local new_draw_states = {}
     
     function new_draw_states.legacy_knockover(self,dx,dy,dz,f,ox)
-        love.graphics.draw(self.frames.knockover,dx, dy - dz,nil,f,1,ox)
+        love.graphics.draw(
+            self.frames.knockover,
+            dx, 
+            dy - dz,
+            self.statetimer*20,
+            f,
+            1,
+            16,
+            16
+        )
     end
 
     function new_draw_states.legacy_down(self,dx,dy,dz,f,ox)
