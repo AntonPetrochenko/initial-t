@@ -24,7 +24,7 @@ return function (x,y,path,speed)
 
     if (self.spawn_timer > self.next_spawn) then
       self.spawn_timer = 0
-      self.next_spawn = math.random(2,5)
+      self.next_spawn = math.random()*3
       spawn_obstacle.spawn(self.y-30)
     end
   end

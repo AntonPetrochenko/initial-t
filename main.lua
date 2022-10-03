@@ -329,7 +329,9 @@ function love.draw()
             for xi=-5,5 do
                 for yi=-5,5 do
                     love.graphics.print(strfirst,offset+xi+90,50+yi)
+                    love.graphics.setFont(font)
                     love.graphics.print(strsecond,offset+xi+90,110+yi)
+                    love.graphics.setFont(bigFont)
                 end
             end
             love.graphics.setColor(1,1,1,1)
@@ -338,7 +340,9 @@ function love.draw()
             for count=1,joystick.playerobj.health do
                 love.graphics.draw(heart, offset+((count*40) + 40), 70, r, 0.05, 0.05)
             end
+            love.graphics.setFont(font)
             love.graphics.print(strsecond,offset+90,110,0)
+            love.graphics.setFont(bigFont)
         else
             love.graphics.setColor(0,0,0,1)
             for xi=-5,5 do

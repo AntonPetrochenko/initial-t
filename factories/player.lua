@@ -1,6 +1,9 @@
 local bullet = require 'factories.bullet'
 local sharedstates = require 'sharedstates'
-local cart_sprite = love.graphics.newImage("/assets/cart.png")
+local cart_sprite = {
+    love.graphics.newImage("/assets/cart.png"),
+    love.graphics.newImage("/assets/cart2.png"),  
+}
 local pvp_collide = require 'pvp_collision_handler'
 local obstacle_collision_handler = require 'obstacle_collision_handler'
 local cpml = require('cpml')
@@ -149,7 +152,7 @@ return function (joyrecord,x,y)
     -- state normal
     function player.update_states.normal(self, dt)
         self.inactivity = self.inactivity + dt
-        if (joyAnyDown(player.joy) and player.statetimer > 3) then
+        if (joyAnyDown(player.joy) and player.statetimer > 0.3) then
             player:setstate('charge')
             
             --player:setstate('legacy_knockover')
@@ -173,6 +176,7 @@ return function (joyrecord,x,y)
         -- else
         --     love.graphics.draw(self.frames.idle,dx,dy - dz,nil,f,1,ox)
         -- end
+
         
 
         local frame_offset = math.floor((self.animation_timer*50)%2)
@@ -180,19 +184,23 @@ return function (joyrecord,x,y)
         if (ax1 < -0.1) then face = 'left' end
         if (ax1 > 0.1) then face = 'right' end
         if (self.hurttimer > 0) then face = 'hurt' end
-        love.graphics.draw(self.frames.cart[face],dx+8,dy - 4 - dz,nil,1,1)
-        love.graphics.draw(cart_sprite,dx,dy+14 - dz,nil,1,1)
+        love.graphics.draw(self.frames.cart[face],dx+8,dy - frame_offset - 4 - dz,nil,1,1)
+        love.graphics.draw(cart_sprite[frame_offset+1],dx,dy+14 - dz,nil,1,1)
         
     end
 
     function player.update_states.charge(self, dt)
+        if self.motion_vector:len() < 1 then
+            self.motion_vector:len(1)
+        end
         player:tick_motion_vector(dt, -1.2)
         local radius, theta = player.motion_vector:to_polar()
         world:add(bullet(
             player.x-5, player.y+32, radius*math.random()+4, 0.93, (math.pi+0.2)+(math.random()*0.3), 0.5)
         )
-        player.joy:setVibration(player.motion_vector:len())
-        if player.statetimer > 0.7 and not joyAnyDown(player.joy) then
+        player.joy:setVibration(1)
+        if player.statetimer > 0.2 and not joyAnyDown(player.joy) then
+            player.joy:setVibration(0)
             player:setstate('normal')
         end
         self.finalize_motion()
@@ -256,7 +264,7 @@ return function (joyrecord,x,y)
                 self.knockvx = 30
                 self.knockvz = 10
                 self:setstate('legacy_knockover')
-                for i=0,50 do
+                for i=0,20 do
                     world:add(bullet(
                         self.x, self.y+20, 10*math.random(),
                         0.99,
