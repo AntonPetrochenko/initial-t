@@ -53,13 +53,6 @@ return function ()
                 local y_offset = new.poy or 0
                 physicsWorld:add(new, new.x + x_offset, new.y + y_offset, new.pw, new.ph)
     
-                new.touching = function (target_type)
-                    physicsWorld:queryRect(new.x-1,new.y-1,new.pw+2,new.ph+2, function (item)
-                        local notme = item.myid ~= newid
-                        local istype = item.collision_type == target_type
-                    end)
-                end
-    
                 new.finalize_motion = function ()
                     local actualX, actualY, cols = physicsWorld:move(new, new.x+x_offset, new.y+y_offset, function (item, other)
                         if

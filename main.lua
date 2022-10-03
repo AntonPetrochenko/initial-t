@@ -214,7 +214,7 @@ function love.update(dt)
     end
     gameTimer = gameTimer + dt
     for i,v in pairs(joysticks) do
-        if v.available and joyAnyDown(v.instance) and gameTimer < 10 then
+        if v.available and joyAnyDown(v.instance) then
             v.available = false
             local np = player_factory(v,spawnpos,100)
             v.player = np
@@ -321,7 +321,7 @@ function love.draw()
                 -- ,joystick.playerobj.health
 
             local strsecond = string.format(
-                [[SELECT TO LEAVE]]
+                [[Водка: %d]], joystick.playerobj.vodka_count
             )
             
 
@@ -335,10 +335,10 @@ function love.draw()
                 end
             end
             love.graphics.setColor(1,1,1,1)
-            love.graphics.draw(joystick.image, offset, 50, r, 0.20, 0.20)
+            love.graphics.draw(joystick.image, offset, 50, 0, 0.20, 0.20)
             love.graphics.print(strfirst,offset+90,50,0)
             for count=1,joystick.playerobj.health do
-                love.graphics.draw(heart, offset+((count*40) + 40), 70, r, 0.05, 0.05)
+                love.graphics.draw(heart, offset+((count*40) + 40), 70, 0, 0.05, 0.05)
             end
             love.graphics.setFont(font)
             love.graphics.print(strsecond,offset+90,110,0)

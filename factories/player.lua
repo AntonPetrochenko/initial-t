@@ -1,12 +1,64 @@
 local bullet = require 'factories.bullet'
 local sharedstates = require 'sharedstates'
+local vodka_collision_handler = require 'vodka_collision_handler'
 local cart_sprite = {
     love.graphics.newImage("/assets/cart.png"),
     love.graphics.newImage("/assets/cart2.png"),  
 }
+
+local crosshair_sprite = love.graphics.newImage("/assets/crosshair.png")
 local pvp_collide = require 'pvp_collision_handler'
 local obstacle_collision_handler = require 'obstacle_collision_handler'
 local cpml = require('cpml')
+
+function lineStipple( x1, y1, x2, y2, dash, gap )
+    local dash = dash or 10
+    local gap  = dash + (gap or 10)
+
+    local steep = math.abs(y2-y1) > math.abs(x2-x1)
+    if steep then
+        x1, y1 = y1, x1
+        x2, y2 = y2, x2
+    end
+    if x1 > x2 then
+        x1, x2 = x2, x1
+        y1, y2 = y2, y1
+    end
+
+    local dx = x2 - x1
+    local dy = math.abs( y2 - y1 )
+    local err = dx / 2
+    local ystep = (y1 < y2) and 1 or -1
+    local y = y1
+    local maxX = x2
+    local pixelCount = 0
+    local isDash = true
+    local lastA, lastB, a, b
+
+    for x = x1, maxX do
+        pixelCount = pixelCount + 1
+        if (isDash and pixelCount == dash) or (not isDash and pixelCount == gap) then
+            pixelCount = 0
+            isDash = not isDash
+            a = steep and y or x
+            b = steep and x or y
+            if lastA then
+                love.graphics.line( lastA, lastB, a, b )
+                lastA = nil
+                lastB = nil
+            else
+                lastA = a
+                lastB = b
+            end
+        end
+
+        err = err - dy
+        if err < 0 then
+            y = y + ystep
+            err = err + dx
+        end
+    end
+end
 
 local _____abs = math.abs
 
@@ -24,6 +76,8 @@ return function (joyrecord,x,y)
     player.x = x
     player.y = y
     player.z = 0
+
+    player.vodka_count = 0
 
     player.state_name = 'normal'
 
@@ -88,12 +142,13 @@ return function (joyrecord,x,y)
     player.on_collision = function (self, other)
         if other.is_player then pvp_collide(self, other) end
         if other.is_obstacle then obstacle_collision_handler(other, self) end
+        if other.is_player then vodka_collision_handler(other, self) end
     end
 
     player.isplayer = true
     player.is_player = true
 
-    
+    player.iframes = 5
 
     player.hitbox = hitbox.new(0, 0, 0, 24, 32, 5, function (attacker,hitv)
         player.knockvx = hitv[1]
@@ -124,7 +179,7 @@ return function (joyrecord,x,y)
         self.motion_vector = self.motion_vector:scale(1-dt*(2*(friction_multiplier or 1)))
         self.motion_vector = self.motion_vector:trim(5)
         self.x = self.x + 100 * (self.motion_vector.x*dt)
-        self.y = self.y + 50 * (self.motion_vector.y*dt)
+        self.y = self.y + 80 * (self.motion_vector.y*dt)
     end
 
     function player.walk_movement(self, dt)
@@ -135,7 +190,7 @@ return function (joyrecord,x,y)
         if ax1 >  0.1 then player.left = false end
 
 
-        local delta_vec2 = cpml.vec2.new(ax1, ax2) -- -0.4
+        local delta_vec2 = cpml.vec2.new(ax1-0.4, ax2) -- -0.4
 
         delta_vec2 = delta_vec2:scale(0.1)
         self.motion_vector = self.motion_vector:add(delta_vec2)
@@ -152,9 +207,9 @@ return function (joyrecord,x,y)
     -- state normal
     function player.update_states.normal(self, dt)
         self.inactivity = self.inactivity + dt
-        if (joyAnyDown(player.joy) and player.statetimer > 0.3) then
+        if (joyAnyDown(player.joy) and player.statetimer > 3) then
             player:setstate('charge')
-            
+                self.motion_vector = self.motion_vector:normalize():scale(2)
             --player:setstate('legacy_knockover')
         end
 
@@ -178,6 +233,24 @@ return function (joyrecord,x,y)
         -- end
 
         
+        if self.statetimer > 3 then
+            local lox = math.floor(dx + 16)
+            local loy = math.floor(dy + 32)
+            
+            local lex, ley = player.motion_vector:trim(1):unpack()
+
+            local crosshair_x = math.floor(lox+lex*50)
+            local crosshair_y = loy+ley*40
+            love.graphics.setColor(1,0,0,1)
+            for ix=-1,1 do
+                for iy=-1,1 do
+                    lineStipple(lox, loy, crosshair_x, crosshair_y, 5, 1)
+                end
+            end
+            love.graphics.setColor(1,1,1,1)
+            love.graphics.draw(crosshair_sprite, crosshair_x-6, crosshair_y-6)
+        end
+        
 
         local frame_offset = math.floor((self.animation_timer*50)%2)
         local face = 'neutral'
@@ -190,9 +263,6 @@ return function (joyrecord,x,y)
     end
 
     function player.update_states.charge(self, dt)
-        if self.motion_vector:len() < 1 then
-            self.motion_vector:len(1)
-        end
         player:tick_motion_vector(dt, -1.2)
         local radius, theta = player.motion_vector:to_polar()
         world:add(bullet(
@@ -228,6 +298,7 @@ return function (joyrecord,x,y)
         local bottom_cutoff = 220
 
         self.hurttimer = self.hurttimer - dt
+        self.iframes = self.iframes - dt
 
         if self.y < top_cutoff then
             self.y = top_cutoff
@@ -259,7 +330,6 @@ return function (joyrecord,x,y)
                     print(self.health)
                 end
             else
-                
                 self.againstme = 'cross'
                 self.knockvx = 30
                 self.knockvz = 10
@@ -289,6 +359,8 @@ return function (joyrecord,x,y)
     end
 
     function player.draw(self)
+        local ax1, ax2, ax3, ax4, ax5, ax6 = self.joy:getAxes()
+
         local dx, dy, dz = math.floor(self.x), math.floor(self.y), math.floor(self.z)
         local f = self.left and -1 or 1
         local ox = self.left and 24 or 0
@@ -296,9 +368,19 @@ return function (joyrecord,x,y)
             love.graphics.setColor(0,0,0,0.5)
             love.graphics.ellipse("fill",self.x+12,self.y+32,8,4)
             love.graphics.setColor(1,1,1,1)
-        end 
-        self:current_draw_state(dx,dy,dz,f,ox)
+        elseif self.state_name ~= 'legacy_down' then
+            love.graphics.setColor(0,0,0,0.5)
+            love.graphics.ellipse("fill",self.x+18,self.y+40,16,4)
+            love.graphics.setColor(1,1,1,1)
+        end
+
+        if (self.iframes > 0 and self.iframes % 0.25 > 0.125) or self.iframes < 0 then
+            self:current_draw_state(dx,dy,dz,f,ox)
+        end
     end
     return player
 end
+
+
+
 

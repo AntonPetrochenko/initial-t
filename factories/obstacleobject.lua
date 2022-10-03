@@ -18,7 +18,7 @@ return function (x,y,path,speed)
 
   new_picture.y_depth_correction = 32
 
-  new_picture.againstme = 'slide'
+  new_picture.againstme = 'cross'
 
   new_picture.on_collision = function (self, other)
     handler(self, other)

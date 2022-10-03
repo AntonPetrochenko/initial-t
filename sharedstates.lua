@@ -13,6 +13,8 @@ function sharedstates.legacy_create_update_states()
         if self.z < 0 then
             self.z = 0
             self:setstate("legacy_down")
+            
+            self.iframes = 5
             self.stamina = 3
         end
         self:finalize_motion()
@@ -23,7 +25,6 @@ function sharedstates.legacy_create_update_states()
         if self.statetimer > 0.5 then
             self.hitbox.enabled = true
             self:setstate("legacy_normal")
-            
         end
     end
 
