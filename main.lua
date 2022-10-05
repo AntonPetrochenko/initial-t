@@ -206,6 +206,24 @@ function love.load()
     world:add(parallax_factory(0,50,"/assets/trava-asset.png", 640, 70))
     world:add(parallax_factory(0,103,"/assets/doroga-asset.png", 453, 200))
     world:add(picturelogic_factory(338,160,"/assets/kamaz-asset.png", 1))
+    mus_play = love.audio.newSource('/assets/audio/TokioDrist.mp3','stream')
+    mus_play:setLooping(true)
+    mus_idle = love.audio.newSource('/assets/audio/HoboIsShitting.wav','stream')
+    mus_idle:setLooping(true)
+
+    mus_idle:play()
+
+end
+
+function getPlayerCount()
+    local out_count = 0
+    for i,v in pairs(joysticks) do
+        if not v.available then
+            out_count = out_count + 1
+        end
+    end
+    print('Count', out_count)
+    return out_count
 end
 
 function love.update(dt)
@@ -213,6 +231,8 @@ function love.update(dt)
         debug.debug()
     end
     gameTimer = gameTimer + dt
+
+    local noplayers = true
     for i,v in pairs(joysticks) do
         if v.available and joyAnyDown(v.instance) then
             v.available = false
@@ -225,6 +245,10 @@ function love.update(dt)
             np.team = i
             np.frames = bum_frames[i]
             needRestart = true
+            if getPlayerCount() == 2 then
+                mus_idle:stop()
+                mus_play:play()
+            end
         end
 
         if not v.available and (v.instance:isGamepadDown("back") or v.playerobj.inactivity > 120 or v.playerobj.iwannadie)  then
@@ -233,6 +257,15 @@ function love.update(dt)
             world:del(v.player)
             v.playerobj = false
             sound_player_disconnect:play()
+
+            if getPlayerCount() == 0 then
+                mus_idle:play()
+                mus_play:stop()
+            end
+        end
+
+        if v.available then
+            noplayers = false
         end
     end
 

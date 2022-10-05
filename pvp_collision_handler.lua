@@ -20,6 +20,8 @@ local function pvp_collide (self, other, ex_mutual)
 
       winner:setstate('normal')
       loser.hurttimer = 1
+
+      loser.audio_hit:play()
       
 
       for i=0,50 do

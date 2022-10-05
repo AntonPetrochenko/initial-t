@@ -11,7 +11,7 @@ local function spawn_obstacle(y)
   elseif obstacle == 3 then
     world:add(enemy_factory(329,y,"/assets/obstacle3.png", 200))
   elseif obstacle == 4 then
-    world:add(vodka(329,y))
+    world:add(vodka(329,y,1,2))
   end
 end
 

@@ -6,6 +6,8 @@ local cart_sprite = {
     love.graphics.newImage("/assets/cart2.png"),  
 }
 
+local vodka = require 'factories/vodka'
+
 local crosshair_sprite = love.graphics.newImage("/assets/crosshair.png")
 local pvp_collide = require 'pvp_collision_handler'
 local obstacle_collision_handler = require 'obstacle_collision_handler'
@@ -84,6 +86,7 @@ return function (joyrecord,x,y)
     player.y_depth_correction = 32
 
     player.motion_vector = cpml.vec2.new(0,0)
+    player.aim_vector = cpml.vec2.new(0,0)
     
     player.shoot_x = 24/2
     player.shoot_y = 32/2
@@ -128,6 +131,13 @@ return function (joyrecord,x,y)
     }
 
 
+    player.audio_charge = love.audio.newSource('/assets/audio/charge.ogg',"static")
+    player.audio_cancel = love.audio.newSource('/assets/audio/charge-cancel.ogg',"static")
+    player.audio_boom = love.audio.newSource('/assets/audio/boom.ogg',"static")
+    player.audio_hit = love.audio.newSource('/assets/audio/cart-hit.wav',"static")
+    player.audio_respawn = love.audio.newSource('/assets/audio/respawn.ogg',"static")
+    player.audio_vodka = love.audio.newSource('/assets/audio/vodka.ogg',"static")
+    player.audio_splat = love.audio.newSource('/assets/audio/splat.ogg',"static")
     local function merg(to, from) 
         for k,v in pairs(from) do to[k] = v end
     end
@@ -207,11 +217,16 @@ return function (joyrecord,x,y)
     -- state normal
     function player.update_states.normal(self, dt)
         self.inactivity = self.inactivity + dt
+        local ax1, ax2, ax3, ax4 = self.joy:getAxes()
         if (joyAnyDown(player.joy) and player.statetimer > 3) then
             player:setstate('charge')
-                self.motion_vector = self.motion_vector:normalize():scale(2)
+                self.audio_respawn:play()
+                self.audio_charge:play()
+                self.motion_vector = cpml.vec2.new(ax3, ax4):scale(1)
             --player:setstate('legacy_knockover')
         end
+
+        self.aim_vector = self.aim_vector:lerp(cpml.vec2.new(ax3, ax4), 1):trim(1)
 
         if player.statetimer < 3 and player.statetimer % 0.15 < 0.05 then
             local radius, theta = player.motion_vector:to_polar()
@@ -235,12 +250,12 @@ return function (joyrecord,x,y)
         
         if self.statetimer > 3 then
             local lox = math.floor(dx + 16)
-            local loy = math.floor(dy + 32)
+            local loy = math.floor(dy + 40)
             
-            local lex, ley = player.motion_vector:trim(1):unpack()
+            local lex, ley = self.aim_vector:unpack()
 
             local crosshair_x = math.floor(lox+lex*50)
-            local crosshair_y = loy+ley*40
+            local crosshair_y = loy+ley*50
             love.graphics.setColor(1,0,0,1)
             for ix=-1,1 do
                 for iy=-1,1 do
@@ -251,6 +266,35 @@ return function (joyrecord,x,y)
             love.graphics.draw(crosshair_sprite, crosshair_x-6, crosshair_y-6)
         end
         
+        local vodka_iterator = 0
+
+        local vodka_x = 0
+        local vodka_y = 0
+
+        local vodka_origin_x = math.floor(0 + player.x)+8
+        local vodka_origin_y = math.floor(0 + player.y)+10
+
+        local row_count = math.floor(self.vodka_count/3)
+
+        local vodka_top_y = vodka_origin_y - row_count * 10
+
+
+        -- unfilled row
+        for i=0,2 do
+            if i<self.vodka_count%3 then
+                love.graphics.draw(vodka_sprite, vodka_origin_x + i * 6 + (row_count)%2, vodka_top_y)
+            end
+        end
+
+        --filled row
+        for i=1,math.floor(self.vodka_count/3) do
+            for j=0,2 do
+                love.graphics.draw(vodka_sprite, vodka_origin_x + j * 6 + (i+row_count)%2, vodka_top_y+i*10)
+            end
+        end
+
+        
+        
 
         local frame_offset = math.floor((self.animation_timer*50)%2)
         local face = 'neutral'
@@ -259,6 +303,9 @@ return function (joyrecord,x,y)
         if (self.hurttimer > 0) then face = 'hurt' end
         love.graphics.draw(self.frames.cart[face],dx+8,dy - frame_offset - 4 - dz,nil,1,1)
         love.graphics.draw(cart_sprite[frame_offset+1],dx,dy+14 - dz,nil,1,1)
+
+
+
         
     end
 
@@ -268,10 +315,13 @@ return function (joyrecord,x,y)
         world:add(bullet(
             player.x-5, player.y+32, radius*math.random()+4, 0.93, (math.pi+0.2)+(math.random()*0.3), 0.5)
         )
-        player.joy:setVibration(1)
-        if player.statetimer > 0.2 and not joyAnyDown(player.joy) then
-            player.joy:setVibration(0)
+        if player.statetimer > 0.4 and not joyAnyDown(player.joy) then
+            if player.statetimer < 1 then
+                self.audio_charge:stop()
+                self.audio_cancel:play()
+            end
             player:setstate('normal')
+            
         end
         self.finalize_motion()
     end
@@ -300,20 +350,33 @@ return function (joyrecord,x,y)
         self.hurttimer = self.hurttimer - dt
         self.iframes = self.iframes - dt
 
+
+        -- wall collision
+
         if self.y < top_cutoff then
             self.y = top_cutoff
             self.motion_vector = self.motion_vector:flip_y()
             self.motion_vector.x = -3
+            
+            self.audio_hit:stop()
+            self.audio_hit:play()
         end
         if self.y > bottom_cutoff then
             self.y = bottom_cutoff
             self.motion_vector = self.motion_vector:flip_y()
             self.motion_vector.x = -3
+            
+            self.audio_hit:stop()
+            self.audio_hit:play()
         end
 
         if self.x > 330 then
             self.x = 330
             self.motion_vector.x = 0
+        end
+
+        if self.x < 0 and self.iframes > 0 and self.state_name ~= 'legacy_down' then
+            self.x = 0
         end
 
         if self.x < -50 then
@@ -322,18 +385,23 @@ return function (joyrecord,x,y)
                     self.iwannadie = true
                 else
                     self.x = 10
-                    self.y = top_cutoff + self.my_index * 40
+                    self.y = top_cutoff + self.my_index * 20
                     self.motion_vector = cpml.vec2(3, 0)
                     self:setstate('normal')
                     self.againstme = 'slide'
                     self.health = self.health - 1
-                    print(self.health)
+                    self.audio_respawn:play()
                 end
             else
                 self.againstme = 'cross'
                 self.knockvx = 30
                 self.knockvz = 10
                 self:setstate('legacy_knockover')
+                self.audio_boom:play()
+                self.audio_charge:stop()
+
+                local third_of_vodka = math.floor(self.vodka_count / 3)
+                self.vodka_count = self.vodka_count - third_of_vodka
                 for i=0,20 do
                     world:add(bullet(
                         self.x, self.y+20, 10*math.random(),
@@ -342,6 +410,13 @@ return function (joyrecord,x,y)
                         2,
                         16
                     ))
+                end
+
+                print(third_of_vodka)
+                if third_of_vodka > 0 then
+                    for i=0,third_of_vodka do
+                        world:add(vodka(self.x+20, self.y, -3*math.random(), 2))
+                    end
                 end
             end
             

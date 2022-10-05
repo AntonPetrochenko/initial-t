@@ -9,11 +9,11 @@ return function (msg)
       love.graphics.setColor(0,0,0,1)
       for xi=-1,1 do
           for yi=-1,1 do
-              love.graphics.print(msg,math.floor(self.timer)+xi,160+yi)
+              love.graphics.print(msg,math.floor(self.timer)+xi,80+yi)
           end
       end
       love.graphics.setColor(1,1,1,1)
-      love.graphics.print(msg,math.floor(self.timer),160)
+      love.graphics.print(msg,math.floor(self.timer),80)
     end
   })
 end

@@ -13,6 +13,8 @@ function sharedstates.legacy_create_update_states()
         if self.z < 0 then
             self.z = 0
             self:setstate("legacy_down")
+
+            self.audio_splat:play()
             
             self.iframes = 5
             self.stamina = 3
