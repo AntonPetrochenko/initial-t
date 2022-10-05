@@ -255,7 +255,7 @@ return function (joyrecord,x,y)
             local lex, ley = self.aim_vector:unpack()
 
             local crosshair_x = math.floor(lox+lex*50)
-            local crosshair_y = loy+ley*50
+            local crosshair_y = loy+ley*40
             love.graphics.setColor(1,0,0,1)
             for ix=-1,1 do
                 for iy=-1,1 do
